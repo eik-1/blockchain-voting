@@ -1,55 +1,85 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Vote, Shield, Lock, Users } from 'lucide-react'
-import Link from 'next/link'
-import { supabase } from '@/configs/supabase' 
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Vote, Shield, Lock, Users } from "lucide-react";
+import Link from "next/link";
+import { supabase } from "@/configs/supabase";
 
 export default function RegistrationPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
-    aadhar: '',
-    email: '',
-    password: '',
-    ethereum: '',
-    address: '',
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+    name: "",
+    aadhar: "",
+    email: "",
+    password: "",
+    ethereum: "",
+    address: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value })
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const { email, password, name, aadhar, ethereum, address } = formData
+    const { email, password, name, aadhar, ethereum, address } = formData;
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    // 1. Sign up the user
+    const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { name, aadhar, ethereum, address },
-      },
-    })
+    });
 
-    if (signUpError) {
-      setError(signUpError.message)
-      setLoading(false)
-      return
+    if (signUpError || !authData.user) {
+      setError(signUpError?.message || "Signup failed.");
+      setLoading(false);
+      return;
+    }
+    console.log("User signed up:", authData.user);
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          id: authData.user?.id,
+          email,
+          aadhar,
+          ethereum_address: ethereum,
+          address,
+        }),
+      });
+      console.log("Response from API:", res);
+    } catch (error) {
+      console.error("Error in API call:", error);
+      setError("Registered, but failed to store user info.");
+      setLoading(false);
+      return;
     }
 
-    router.push('/dashboard') 
-  }
+    router.push("/dashboard");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -62,12 +92,17 @@ export default function RegistrationPage() {
                 <div className="bg-blue-600 p-3 rounded-full mr-4">
                   <Vote className="h-8 w-8 text-white" />
                 </div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">BlockVote</h1>
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                  BlockVote
+                </h1>
               </div>
-              <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-4">Blockchain Based Voting System</h2>
+              <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-4">
+                Blockchain Based Voting System
+              </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Secure, transparent, and tamper-proof voting powered by blockchain technology. Your vote matters, and
-                now it's protected by cryptographic security.
+                Secure, transparent, and tamper-proof voting powered by
+                blockchain technology. Your vote matters, and now it's protected
+                by cryptographic security.
               </p>
             </div>
 
@@ -78,8 +113,12 @@ export default function RegistrationPage() {
                   <Shield className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Secure & Transparent</h3>
-                  <p className="text-gray-600">Every vote is recorded on the blockchain.</p>
+                  <h3 className="font-semibold text-gray-900">
+                    Secure & Transparent
+                  </h3>
+                  <p className="text-gray-600">
+                    Every vote is recorded on the blockchain.
+                  </p>
                 </div>
               </div>
 
@@ -90,7 +129,9 @@ export default function RegistrationPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">Tamper-Proof</h3>
-                  <p className="text-gray-600">Immutable blockchain prevents unauthorized changes.</p>
+                  <p className="text-gray-600">
+                    Immutable blockchain prevents unauthorized changes.
+                  </p>
                 </div>
               </div>
 
@@ -100,8 +141,12 @@ export default function RegistrationPage() {
                   <Users className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Verified Identity</h3>
-                  <p className="text-gray-600">Aadhar-based verification ensures eligibility.</p>
+                  <h3 className="font-semibold text-gray-900">
+                    Verified Identity
+                  </h3>
+                  <p className="text-gray-600">
+                    Aadhar-based verification ensures eligibility.
+                  </p>
                 </div>
               </div>
             </div>
@@ -111,30 +156,57 @@ export default function RegistrationPage() {
           <div className="flex items-center justify-center">
             <Card className="w-full max-w-md shadow-xl">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">Voter Registration</CardTitle>
-                <CardDescription>Register to participate in blockchain-secured voting</CardDescription>
+                <CardTitle className="text-2xl font-bold">
+                  Voter Registration
+                </CardTitle>
+                <CardDescription>
+                  Register to participate in blockchain-secured voting
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-6">
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" value={formData.name} onChange={handleChange} required />
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="aadhar">Aadhar Number</Label>
-                    <Input id="aadhar" value={formData.aadhar} onChange={handleChange} required maxLength={14} />
+                    <Input
+                      id="aadhar"
+                      value={formData.aadhar}
+                      onChange={handleChange}
+                      required
+                      maxLength={14}
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" value={formData.email} onChange={handleChange} required />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" value={formData.password} onChange={handleChange} required />
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -151,18 +223,35 @@ export default function RegistrationPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="address">Residential Address</Label>
-                    <Textarea id="address" rows={3} value={formData.address} onChange={handleChange} required />
+                    <Textarea
+                      id="address"
+                      rows={3}
+                      value={formData.address}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
                   <div className="pt-4 space-y-4">
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
-                      {loading ? 'Registering...' : 'Register for Voting'}
+                    <Button
+                      type="submit"
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      disabled={loading}
+                    >
+                      {loading ? "Registering..." : "Register for Voting"}
                     </Button>
-                    {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+                    {error && (
+                      <p className="text-sm text-red-600 text-center">
+                        {error}
+                      </p>
+                    )}
 
                     <p className="text-sm text-gray-600 text-center">
-                      Already registered?{' '}
-                      <Link href="/" className="text-blue-600 hover:underline font-medium">
+                      Already registered?{" "}
+                      <Link
+                        href="/"
+                        className="text-blue-600 hover:underline font-medium"
+                      >
                         Sign in here
                       </Link>
                     </p>
@@ -171,7 +260,8 @@ export default function RegistrationPage() {
 
                 <div className="pt-4 border-t">
                   <p className="text-xs text-gray-500 text-center">
-                    By registering, you agree to our Terms of Service and Privacy Policy.
+                    By registering, you agree to our Terms of Service and
+                    Privacy Policy.
                   </p>
                 </div>
               </CardContent>
@@ -180,5 +270,5 @@ export default function RegistrationPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
