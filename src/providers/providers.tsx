@@ -2,7 +2,7 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { WagmiProvider } from "wagmi";
+import { http, WagmiProvider } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import React from "react";
@@ -12,9 +12,9 @@ const config = getDefaultConfig({
   projectId: "aedb10bf2cd98950f949b0d4769228cb",
   chains: [sepolia],
   ssr: true,
-  //   transports: {
-  //     [sepolia.id]: http("https://eth-sepolia.g.alchemy.com/v2/..."),
-  //   },
+  transports: {
+    [sepolia.id]: http(process.env.NEXT_PUBLIC_RPC!),
+  },
 });
 
 const queryClient = new QueryClient();
