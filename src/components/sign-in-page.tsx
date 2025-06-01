@@ -1,39 +1,45 @@
-"use client"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { supabase } from "@/configs/supabase"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Vote, Shield, Lock } from "lucide-react"
-import Link from "next/link"
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/configs/supabase";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Vote, Shield, Lock } from "lucide-react";
+import Link from "next/link";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    })
+    });
 
-    setLoading(false)
+    setLoading(false);
 
     if (error) {
-      setError(error.message)
+      setError(error.message);
     } else {
-      router.push("/dashboard") 
+      router.push("/dashboard");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -46,11 +52,16 @@ export default function SignInPage() {
                 <div className="bg-blue-600 p-3 rounded-full mr-4">
                   <Vote className="h-8 w-8 text-white" />
                 </div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">BlockVote</h1>
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                  BlockVote
+                </h1>
               </div>
-              <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-4">Welcome Back</h2>
+              <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-4">
+                Welcome Back
+              </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Sign in to access your blockchain-secured voting account and participate in ongoing elections.
+                Sign in to access your blockchain-secured voting account and
+                participate in ongoing elections.
               </p>
             </div>
             {/* Features */}
@@ -61,7 +72,10 @@ export default function SignInPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">Secure Voting</h3>
-                  <p className="text-gray-600">Your vote is protected by advanced blockchain technology and encryption.</p>
+                  <p className="text-gray-600">
+                    Your vote is protected by advanced blockchain technology and
+                    encryption.
+                  </p>
                 </div>
               </div>
 
@@ -70,9 +84,12 @@ export default function SignInPage() {
                   <Lock className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Private & Confidential</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    Private & Confidential
+                  </h3>
                   <p className="text-gray-600">
-                    Your identity is verified but your voting choices remain confidential.
+                    Your identity is verified but your voting choices remain
+                    confidential.
                   </p>
                 </div>
               </div>
@@ -84,7 +101,9 @@ export default function SignInPage() {
             <Card className="w-full max-w-md shadow-xl">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
-                <CardDescription>Access your blockchain voting account</CardDescription>
+                <CardDescription>
+                  Access your blockchain voting account
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -119,11 +138,17 @@ export default function SignInPage() {
                         id="remember"
                         className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="remember" className="text-sm text-gray-600">
+                      <label
+                        htmlFor="remember"
+                        className="text-sm text-gray-600"
+                      >
                         Remember me
                       </label>
                     </div>
-                    <a href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                    <a
+                      href="/forgot-password"
+                      className="text-sm text-blue-600 hover:underline"
+                    >
                       Forgot password?
                     </a>
                   </div>
@@ -142,7 +167,10 @@ export default function SignInPage() {
                     <div className="text-center">
                       <p className="text-sm text-gray-600">
                         Don't have an account?{" "}
-                        <Link href="/register" className="text-blue-600 hover:underline font-medium">
+                        <Link
+                          href="/register"
+                          className="text-blue-600 hover:underline font-medium"
+                        >
                           Register here
                         </Link>
                       </p>
@@ -152,7 +180,8 @@ export default function SignInPage() {
 
                 <div className="pt-4 border-t">
                   <p className="text-xs text-gray-500 text-center">
-                    By signing in, you agree to our Terms of Service and Privacy Policy.
+                    By signing in, you agree to our Terms of Service and Privacy
+                    Policy.
                   </p>
                 </div>
               </CardContent>
@@ -161,5 +190,5 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
